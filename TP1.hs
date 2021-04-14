@@ -138,14 +138,19 @@ allTests = test [
 -- Ejemplos sólo para mostrar cómo se escriben los tests. Reemplazar por los tests propios.
 
 testsEj1 = test [
---   [False] ~=? neg not [True],
-  4 ~=? 2*2
+  [False] ~=? neg [True],
+  [True] ~=? neg [False],
+  [True, False] ~=? esPar [2,3],
+  [4,6] ~=? sumarTuplas [(6,-2),(2,4)]
   ]
 
 testsEj2 = test [
   2 ~=? 1+1,
   4 ~=? 2*2
   ]
+
+verdad = MateriaPrima True
+mentira = MateriaPrima False
 
 testsEj3 = test [
   2 ~=? 1+1,
@@ -157,8 +162,7 @@ testsEj4 = test [
   [False, False, True, False, True, False] ~=? paralelizar neg esPar [(True, 1), (False, 3), (False, 1)]
   ]
 
-verdad = MateriaPrima True
-mentira = MateriaPrima False
+
 
 testsEj5 = test [
   25.0 ~=? pureza True (Mezclar (Mezclar verdad 50.0 mentira) 50.0 mentira),
