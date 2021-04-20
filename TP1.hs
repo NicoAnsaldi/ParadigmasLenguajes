@@ -41,7 +41,7 @@ sumarTuplas = crearFabricaSimple (\t -> fst t + snd t)
 -- Ej 2 
 
 foldMaterial :: (a -> b) -> (b -> Float -> b -> b) -> Material a -> b
-foldMaterial casoPrima casoMezcla mat = 
+foldMaterial casoPrima casoMezcla mat =
     case mat of
         MateriaPrima a -> casoPrima a
         Mezclar p n q -> casoMezcla (resRec p) n (resRec q)
@@ -62,7 +62,7 @@ paralelizar :: Fabrica a c -> Fabrica b c -> [(a,b)] -> [c]
 paralelizar factory1 factory2 xs =  entrelazar (zip (factory1 (map fst xs)) (factory2 (map snd xs)))
 
 entrelazar :: [(c,c)] -> [c]
-entrelazar = concatMap (\t -> [fst t, snd t]) 
+entrelazar = concatMap (\t -> [fst t, snd t])
 
 -- Ej 5
 
@@ -111,7 +111,8 @@ testsEj1 = test [
   [True, False, True] ~=? esPar [2,3,0],
   [] ~=? esPar [],
   [] ~=? sumarTuplas [],
-  [4,6] ~=? sumarTuplas [(6,-2),(2,4)]
+  [4,6] ~=? sumarTuplas [(6,-2),(2,4)],
+  [False, True, False, True, False] ~=? take 5 ((crearFabricaSimple even) [1..])
   ]
 
 verdad = MateriaPrima True
@@ -133,7 +134,8 @@ testsEj4 = test [
   [] ~=? secuenciar esPar neg [],
   [True, False, True, True] ~=? secuenciar esPar neg [1, 2, 3, 5],
   [] ~=? paralelizar neg esPar [],
-  [False, False, True, False, True, False] ~=? paralelizar neg esPar [(True, 1), (False, 3), (False, 1)]
+  [False, False, True, False, True, False] ~=? paralelizar neg esPar [(True, 1), (False, 3), (False, 1)],
+  [1,1,2,2,3] ~=? take 5 (entrelazar [(i,i) | i <- [1..]])
   ]
 
 
