@@ -1,35 +1,45 @@
 //f.prototype = prototipos de las instancias creadas a partir de f
 //getProtypeOf(f) = el prototipo de f, function.prototype
-
 AgenteDeControl = function() {
-    this.agencia = "Control"
+    // Inicialmente habiamos puesto esto
+    // this.agencia = "Control"
+    // Sin embargo, si la agencia de control decide cambiar su nombre
+    // Los agentes que trabajan para esa agencia no van a conocer el nuevo nombre
+    // Y no queremos que sea una nueva agencia, ya que tendriamos que crear a las mismas personas
+    // Por lo tanto decidimos que el agente de control vaya a buscar como se llama su agencia
+    // Al prototipo de las instancias creadas por AgenteDeControl
 };
+
+// Aclaramos que de esta forma si un agente de control se va a espiar otra agencia
+// no va a saber responder el mensaje agencia. Nos parecio mas importante que
+// todos los agentes sepan siempre el nombre de su agencia actualizado.
+// Caso contrario habria que eliminar esta linea y descomentar la que se encuentra
+// dentro de AgenteDeControl, para que todos los agentes tengan una copia del nombre de su agencia
+AgenteDeControl.prototype.agencia = "Control";
 
 smart = new AgenteDeControl();
 
-Agencia = function( programa, idFuncion, numeroTotalFuncion) {
+// Agencia = function(programa) {
+//     this.programaDeEntrenamiento = programa;
+// }
+//control = new Agencia(AgenteDeControl);
+
+Agencia = function(programa, idFuncion, numeroTotalFuncion) {
     this.programaDeEntrenamiento = programa;
     this.idFuncion = idFuncion;
     this.numeroTotalFuncion = numeroTotalFuncion;
     this.programaDeEntrenamiento.prototype[numeroTotalFuncion] = 0;
 
-    this.programaDeEntrenamiento.prototype.espiar = function(agenciaAEspiar) {
-        Object.setPrototypeOf(this, agenciaAEspiar.programaDeEntrenamiento.prototype);
-    }
-
     this.incrementar = function(){
     	this.programaDeEntrenamiento.prototype[numeroTotalFuncion]++;
     };
+
+    this.programaDeEntrenamiento.prototype.espiar = function(agenciaAEspiar) {
+        Object.setPrototypeOf(this, agenciaAEspiar.programaDeEntrenamiento.prototype);
+    }
 };
 
-//control = new Agencia(AgenteDeControl);
 control = new Agencia(AgenteDeControl, "idC", "nC");
-
-// no me gusta pasarle el agente como parametro
-realizarProgramaDeEntrenamiento = function(agente, agencia) {
-    completarProgramaDeEntrenamiento = agencia.programaDeEntrenamiento.bind(agente); // bind reemplaza al this, que es nuevo, por este agente en particular
-    completarProgramaDeEntrenamiento();
-};
 
 asignarIdAAgente = function(agente, agencia) {
     agente[agencia.idFuncion] = agente[agencia.numeroTotalFuncion];
@@ -101,6 +111,15 @@ function testEjercicio1(res) {
   let suAgenciaEsControl = smart.agencia === "Control";
   res.write(`La Agencia del agente Smart ${si_o_no(suAgenciaEsControl)} es Control`, suAgenciaEsControl);
   // Completar
+  res.write("\n|| Si la agencia modifica su nombre, el agente lo conoce ||\n");
+  AgenteDeControl.prototype.agencia = "New Control";
+  let suAgenciaEsNewControl = smart.agencia === "New Control";
+  res.write(`La Agencia del agente Smart ${si_o_no(suAgenciaEsNewControl)} es New Control`, suAgenciaEsNewControl);
+
+  res.write("\n|| Los nuevos agentes tienen el nombre de la agencia actualizado ||\n");
+  let agent99 = new AgenteDeControl();
+  let agenciaAgente99EsNewControl = agent99.agencia === "New Control";
+  res.write(`La Agencia de la agente 99 ${si_o_no(agenciaAgente99EsNewControl)} es New Control`, agenciaAgente99EsNewControl);
 
 }
 
