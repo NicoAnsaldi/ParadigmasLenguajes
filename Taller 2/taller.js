@@ -340,10 +340,14 @@ function testEjercicio6(res) {
   let perrySabeSacarseElSombrero = 'sacarseElSombrero' in p;
   res.write(`El agente P ${si_o_no(perrySabeSacarseElSombrero)} sabe sacarse el sombrero`, perrySabeSacarseElSombrero);
 
+  // Verificamos que el agente p tenga el sombrero puesto cuando esta creado
+  res.write("\n|| El agente p tiene el sombrero puesto cuando es creado ||\n");
   let tieneElSombreroPuesto = p.sombrero;
   res.write(`Tiene el sombrero puesto ${si_o_no(tieneElSombreroPuesto)}`, tieneElSombreroPuesto);
-  res.write("H" + tieneElSombreroPuesto);
-    p.sacarseElSombrero();
+
+  // Verificamos que el agente p se saque el sombrero cuando usa su habilidad
+  res.write("\n|| El agente p se saca el sombrero cuando usa su habilidad ||\n");
+  p.sacarseElSombrero();
   let seSacoElSombrero = !p.sombrero;
   res.write(`Se saco el sombrero ${si_o_no(seSacoElSombrero)}`, seSacoElSombrero);
 
@@ -365,17 +369,18 @@ function testEjercicio6(res) {
   res.write(`El agente Camaleón ${si_o_no(camaleonEsRojo)} es de color rojo`, camaleonEsRojo);
   res.write(`El agente Camaleón ${si_o_no(camaleonRespondeQOnda)} responde 'q onda?' si le piden repetir 'q onda?'`, camaleonRespondeQOnda);
 
-  // Completar
-  //los agentes especiales pueden hacer lo mismo que los otros agentes
+  // Verificamos que los agentes especiales pueden hacer lo mismo que los otros agentes
   res.write("\n|| Los agentes especiales pueden espiar como el resto de los agentes ||\n");
-  control = new Agencia(function() { }, "idC", "nC");
+  let control = new Agencia(function() { }, "idC", "nC");
   p.espiar(control);
   let p_conoce_idC = "idC" in p;
   let p_conoce_nC = "nC" in p;
-  res.write("El espía de Control" + si_o_no(p_conoce_idC) + "sabe responder idC", !p_conoce_idC);
-  res.write("El espía de Control" + si_o_no(p_conoce_nC) + "sabe responder nC", p_conoce_nC);
+  res.write("El agente p" + si_o_no(p_conoce_idC) + "sabe responder idC", !p_conoce_idC);
+  res.write("El agente p" + si_o_no(p_conoce_nC) + "sabe responder nC", p_conoce_nC);
+
+  res.write("\n|| Los agentes especiales pueden dejar de espiar como el resto de los agentes ||\n");
   p.dejarDeEspiar();
   p_conoce_nC = "nC" in p;
-  res.write("El espía de Control" + si_o_no(p_conoce_idC) + "sabe responder idC", !p_conoce_idC);
-  res.write("El espía de Control" + si_o_no(p_conoce_nC) + "sabe responder nC", !p_conoce_nC);
+  res.write("El agente p" + si_o_no(p_conoce_idC) + "sabe responder idC", !p_conoce_idC);
+  res.write("El agente p" + si_o_no(p_conoce_nC) + "sabe responder nC", !p_conoce_nC);
 }
