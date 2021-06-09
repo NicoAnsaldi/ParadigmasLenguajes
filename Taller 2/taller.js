@@ -31,62 +31,45 @@ realizarProgramaDeEntrenamiento = function(agente, agencia) {
     completarProgramaDeEntrenamiento();
 };
 
-// espiar = function(agente, agenciaAEspiar) {
-//     realizarProgramaDeEntrenamiento(agente, agenciaAEspiar);
-//     Object.setPrototypeOf(agente, agencia.programaDeEntrenamiento.prototype);
-// };
-
 asignarIdAAgente = function(agente, agencia) {
     agente[agencia.idFuncion] = agente[agencia.numeroTotalFuncion];
     // Actualizamos la cantidad de agentes en la agencia
     agencia.incrementar();
 }
 
-nuevoAgente = function(agencia) {
-    let agente = new agencia.programaDeEntrenamiento();
+registrarAgente = function(agente, agencia) {
     asignarIdAAgente(agente, agencia);
-
     agente.dejarDeEspiar = function() {
         Object.setPrototypeOf(agente, agencia.programaDeEntrenamiento.prototype);
     };
+}
+
+nuevoAgente = function(agencia) {
+    let agente = new agencia.programaDeEntrenamiento();
+    registrarAgente(agente, agencia);
     return agente;
 };
 
 enrolar = function(agente, agencia){
-    // completarProgramaDeEntrenamiento = agencia.programaDeEntrenamiento.bind(agente); // bind reemplaza al this, que es nuevo, por este agente en particular
-    // completarProgramaDeEntrenamiento();
+    completarProgramaDeEntrenamiento = agencia.programaDeEntrenamiento.bind(agente); // bind reemplaza al this, que es nuevo, por este agente en particular
+    completarProgramaDeEntrenamiento();
     // Con bind
     // se crea un obj, se ejecuta la func con el this, como este nuevo obj,
     //y al objeto nuevo le pone como prototype el prototypo de las instancias de esa funcion
 
-    // Esto lo hice por si tiene que hacer el prog de entrenamiento cuando empiezan a espiar
-    realizarProgramaDeEntrenamiento(agente, agencia);
     Object.setPrototypeOf(agente, agencia.programaDeEntrenamiento.prototype);
-
-    asignarIdAAgente(agente, agencia);
-
-    // si lo pongo aca puedo volver a saber lo de la agencia original
-    // en cambio si lo pongo en su prototipo no voy a poder saber la original (a menos que me guarde un nuevo mensaje)
-    agente.dejarDeEspiar = function() {
-        Object.setPrototypeOf(agente, agencia.programaDeEntrenamiento.prototype);
-    };
+    registrarAgente(agente, agencia);
 };
 
 agenteEspecial = function(agencia, habilidad){
     let agente = nuevoAgente(agencia);
-    let habilidadParaAgente = habilidad.bind(agente);
-    agente[habilidad.name] = habilidadParaAgente;
-    // quiero que sea de esta forma, pero que no se ejecute cuando se crea el agente
-    // El problema de estos es que la habilidad no puede tomar parametros
-    // agente[habilidad.name] = (habilidad.bind(agente)).call()
+    agente[habilidad.name] = habilidad;
     return agente;
 };
 
 camuflar = function(objetoACamuflar) {
-    // Esto esta asi por si tenemos que tener cuidado con los mensajes de this
-    for(let propiedad in objetoACamuflar) {
-        this[propiedad] = objetoACamuflar[propiedad];
-    }
+    // Asumimos que los mensajes de objetoACamuflar son distintos que los de this (Consultado)
+    Object.assign(this, objetoACamuflar);
 };
 
 // Ejemplo de un test
@@ -314,7 +297,7 @@ function testEjercicio6(res) {
   let tieneElSombreroPuesto = p.sombrero;
   res.write(`Tiene el sombrero puesto ${si_o_no(tieneElSombreroPuesto)}`, tieneElSombreroPuesto);
   res.write("H" + tieneElSombreroPuesto);
-  p.sacarseElSombrero;
+    p.sacarseElSombrero();
   let seSacoElSombrero = !p.sombrero;
   res.write(`Se saco el sombrero ${si_o_no(seSacoElSombrero)}`, seSacoElSombrero);
 
