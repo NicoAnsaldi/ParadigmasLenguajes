@@ -11,7 +11,7 @@ AgenteDeControl = function() {
 };
 
 // Aclaramos que de esta forma si un agente de control se va a espiar otra agencia
-// no va a saber responder el mensaje agencia. Nos parecio mas importante que
+// mientras esta espiando no va a saber responder el mensaje agencia. Nos parecio mas importante que
 // todos los agentes sepan siempre el nombre de su agencia actualizado.
 // Caso contrario habria que eliminar esta linea y descomentar la que se encuentra
 // dentro de AgenteDeControl, para que todos los agentes tengan una copia del nombre de su agencia
@@ -110,6 +110,7 @@ function testEjercicio1(res) {
   res.write(`Agente Smart ${si_o_no(conoceSuAgencia)} conoce su agencia`, conoceSuAgencia);
   let suAgenciaEsControl = smart.agencia === "Control";
   res.write(`La Agencia del agente Smart ${si_o_no(suAgenciaEsControl)} es Control`, suAgenciaEsControl);
+
   // Completar
   res.write("\n|| Si la agencia modifica su nombre, el agente lo conoce ||\n");
   AgenteDeControl.prototype.agencia = "New Control";
@@ -132,6 +133,7 @@ function testEjercicio2(res) {
   kaos = new Agencia(AgenteDeKaos);
   let tieneDefinidoElProgramaDeEntrenamiento = Object.values(kaos).includes(AgenteDeKaos);
   res.write(`La agencia Kaos ${si_o_no(tieneDefinidoElProgramaDeEntrenamiento)} tiene definido un programa de entrenamiento`, tieneDefinidoElProgramaDeEntrenamiento);
+
   // Completar
   let tieneDefinidoElProgramaDeEntrenamientoControl = Object.values(control).includes(AgenteDeControl);
   res.write(`La agencia Control ${si_o_no(tieneDefinidoElProgramaDeEntrenamientoControl)} tiene definido un programa de entrenamiento`, tieneDefinidoElProgramaDeEntrenamiento);
@@ -230,6 +232,16 @@ function testEjercicio4(res) {
   res.write("El agente de Kaos" + si_o_no(agenteK_conoce_nK) + "actualiza nK", agenteK_conoce_nK);
   res.write("Numero de agentes en Control: " + agenteC.nC);
   res.write("Numero de agentes en Kaos: " + agenteK.nK);
+
+  // Verificamos el funcionamiento de la funcion auxiliar asignarIdAgente
+  res.write("\n|| Verifcamos la funcion asignarIdAgente por separado ||\n");
+  let agenciaSecreta = new Agencia(function() { }, "idAS", "nAS");
+  let agenteAS = new agenciaSecreta.programaDeEntrenamiento() ;
+  asignarIdAAgente(agenteAS, agenciaSecreta);
+  let agenteAS_conoce_idAS = "idAS" in agenteAS;
+  res.write("El agente de la agencia Secreta tiene asignado su id" + si_o_no(agenteAS_conoce_idAS), agenteAS_conoce_idAS);
+  let agenteASTieneIdCorrecto = agenteAS.idAS == 0;
+  res.write("El agenteAS tiene el id correcto" + si_o_no(agenteASTieneIdCorrecto), agenteASTieneIdCorrecto);
 }
 
 // Test Ejercicio 5
@@ -258,7 +270,6 @@ function testEjercicio5(res) {
   res.write("El espía de Kaos" + si_o_no(K_conoce_nC) + "sabe responder nC", K_conoce_nC);
   res.write("El espía de Kaos" + si_o_no(K_conoce_idK) + "sabe responder idK", K_conoce_idK);
   res.write("El espía de Kaos" + si_o_no(K_conoce_nK) + "sabe responder nK", !K_conoce_nK);
-  // Completar
 
   // agenteC tiene que poder ir a espiar a su agencia original
   res.write("\n|| Crear un doble agente  ||\n");
@@ -284,6 +295,7 @@ function testEjercicio5(res) {
   res.write("El espía de Kaos" + si_o_no(K_conoce_idK) + "sabe responder idK", K_conoce_idK);
   res.write("El espía de Kaos" + si_o_no(K_conoce_nK) + "sabe responder nK", K_conoce_nK);
 
+  // Verificamos que el espia doble pueda volver a su agencia original
   res.write("\n|| Dejar de espiar con el agente doble ||\n");
   agenteC.dejarDeEspiar();
   C_conoce_idC = "idC" in agenteC;
@@ -295,7 +307,22 @@ function testEjercicio5(res) {
   res.write("El espía de Control" + si_o_no(C_conoce_idK) + "sabe responder idK", !C_conoce_idK);
   res.write("El espía de Control" + si_o_no(C_conoce_nK) + "sabe responder nK", !C_conoce_nK);
 
-
+  // Probamos por separado la funcion registrarAgente
+  res.write("\n|| Verificamos la funcion registrarAgente por separado ||\n");
+  let agenciaSecreta = new Agencia(function() { }, "idAS", "nAS");
+  // lo que queremos verificar es que despues de usar registraragente
+  // este tenga id y sepa dejarDeEspiar
+  let agenteAS = new agenciaSecreta.programaDeEntrenamiento();
+  let agenteAS_conoce_dejarDeEspiar = "dejarDeEspiar" in agenteAS;
+  // vemos que antes de registrar no sabe dejar de espiar
+  res.write("El agenteAS " + si_o_no(agenteAS_conoce_dejarDeEspiar) + "sabe dejarDeEspiar antes de registrarse", !agenteAS_conoce_dejarDeEspiar);
+  registrarAgente(agenteAS, agenciaSecreta);
+  let agenteAS_conoce_idAS = "idAS" in agenteAS;
+  agenteAS_conoce_dejarDeEspiar = "dejarDeEspiar" in agenteAS;
+  let agenteASIDCorrecto = agenteAS.idAS == 0;
+  res.write("El agenteAS " + si_o_no(agenteAS_conoce_idAS) + "sabe responder idAS", agenteAS_conoce_idAS);
+  res.write("El agenteAS tiene id 0" + si_o_no(agenteASIDCorrecto),  agenteASIDCorrecto);
+  res.write("El agenteAS " + si_o_no(agenteAS_conoce_dejarDeEspiar) + "sabe dejarDeEspiar despues de registrarse", agenteAS_conoce_dejarDeEspiar);
 }
 
 // Test Ejercicio 6
