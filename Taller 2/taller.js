@@ -1,5 +1,3 @@
-//f.prototype = prototipos de las instancias creadas a partir de f
-//getProtypeOf(f) = el prototipo de f, function.prototype
 AgenteDeControl = function() {
     // Inicialmente habiamos puesto esto
     // this.agencia = "Control"
@@ -19,7 +17,7 @@ AgenteDeControl.prototype.agencia = "Control";
 
 smart = new AgenteDeControl();
 
-// Agencia = function(programa) {
+// Agencia = function(programa) { //Esta es la version de Agencia, para los ejercicios 1,2 y 3
 //     this.programaDeEntrenamiento = programa;
 // }
 //control = new Agencia(AgenteDeControl);
@@ -61,11 +59,8 @@ nuevoAgente = function(agencia) {
 };
 
 enrolar = function(agente, agencia){
-    completarProgramaDeEntrenamiento = agencia.programaDeEntrenamiento.bind(agente); // bind reemplaza al this, que es nuevo, por este agente en particular
+    completarProgramaDeEntrenamiento = agencia.programaDeEntrenamiento.bind(agente);
     completarProgramaDeEntrenamiento();
-    // Con bind
-    // se crea un obj, se ejecuta la func con el this, como este nuevo obj,
-    //y al objeto nuevo le pone como prototype el prototypo de las instancias de esa funcion
 
     Object.setPrototypeOf(agente, agencia.programaDeEntrenamiento.prototype);
     registrarAgente(agente, agencia);
