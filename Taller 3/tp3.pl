@@ -134,7 +134,8 @@ incrementarTodosLosCodigos([(Cod,V)|LS],[(Cod2,V)|LSInc]) :- Cod2 is Cod+1, incr
 
 % Este predicado nos sirve para saber cuantas variables temporales hay en el programa
 %cantDeVariablesTemp(+P,+Xs,-CantTemp)
-cantDeVariablesTemp(P,Xs,CantTemp) :- cantDeVariables(P,0,CantTotal), length(Xs,CantEntrada), CantTemp is CantTotal-CantEntrada-1.
+%cantDeVariablesTemp(P,Xs,CantTemp) :- cantDeVariables(P,0,CantTotal), length(Xs,CantEntrada), CantTemp is CantTotal-CantEntrada-1.
+cantDeVariablesTemp(P,Xs,CantTemp) :- cantDeVariables(P,0,CantTotal), length(Xs,CantEntrada), CantEnPrograma is CantTotal-CantEntrada-1,maximo(CantEnPrograma,0,CantTemp).
 % El 1 que restamos es por Y
 
 %cantDeVariables(+P,+CantActual,-Cant)
