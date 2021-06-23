@@ -205,17 +205,23 @@ nuevoValor(Val,C,R) :- R is V + 3 + (-2*C).
 stp(Xs,P,T) :- longitud(P,Long), snap(Xs,P,T,Di), pi1(Di,Ind), Ind is Long+1.
 
 %% Pseudo-Halt
+desde2(X,Y) :- var(Y), desde(X,Y).
+% Si Y esta instanciada
+desde2(X,Y) :- nonvar(Y), X =< Y.
 
 % pseudoHalt(+X, +Y)
 % COMPLETAR
+pseudoHalt(X,P) :- desde(1,Y), stp([X],P,Y), !.
 
 % Buscar entradas para las cuales el programa Y termina
 % pseudoHalt2(-X, +Y)
 % COMPLETAR
+pseudoHalt2(X,Y) :- desde2(0,X), pseudoHalt(X,Y).
 
 % Buscar pares programa-entrada que terminen
 % pseudoHalt3(-X, -Y)
 % COMPLETAR
+pseudoHalt3(X,Y) :- desde(1,Y), programa(P,Y), between(1,Y,X), pseudoHalt2(X,P).
 
 % programa(-P, +N)
 programa([], 0).
