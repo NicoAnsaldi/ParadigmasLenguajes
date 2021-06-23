@@ -110,6 +110,36 @@ iEsimaInstruccion(E, Indice, Instruccion) :- is_list(E), iesimo(E, Indice, Instr
 % Instancia en el cuarto argumento la descripción instantánea resultante de
 % ejecutar el programa P con entradas Xs tras T pasos.
 % COMPLETAR
+snap(Xs,P,0,(1,S0)) :- entradaAEstado(P,Xs,S0), !.
+snap(Xs,P,T,(Ind,Est)) :- T>0, T2 is T-1, snap(Xs,P,T2,(Ind2,Est2)), iEsimaInstruccion(P,Ind2,Inst), avanzarIndice(P,Est2,Inst,Ind2,Ind), avanzarEstado(Inst,Est2,Est), !.
+
+%entradaAEstado(+P,+Xs,-S0).
+entradaAEstado(P,Xs,S0) :- entradaAEstadoAux(Xs,0,Est), incrementarCodigoVarsEntrada(P,Xs,Est,S0).
+
+%entradaAEstadoAux(+Xs,+I,-S0)
+entradaAEstadoAux([],_,[]).
+entradaAEstadoAux([X|LS],I,[(I2,X)|S0]) :- I2 is I+2, NextI is I+1, entradaAEstadoAux(LS,NextI,S0).
+
+%incrementarCodigoVarsEntrada(+P,+Xs,+Est,-S0)
+incrementarCodigoVarsEntrada(P,Xs,Est,S0) :- cantDeVariablesTemp(P,Xs,CantDeVariablesTemp), incrementarCodigoVarsEntradaAux(Est,CantDeVariablesTemp,S0).
+
+%incrementarCodigoVarsEntradaAux(+Est,+CantTemp,-S0)
+incrementarCodigoVarsEntradaAux([],_,[]).
+incrementarCodigoVarsEntradaAux(Est,0,Est).
+incrementarCodigoVarsEntradaAux([T|LS],CantTemp,[T|LSInc]) :- CantTemp>0, incrementarTodosLosCodigos(LS,LS2), CantTemp2 is CantTemp-1, incrementarCodigoVarsEntradaAux(LS2,CantTemp2,LSInc).
+
+%incrementarTodosLosCodigos(+Est,-EstIncrementado).
+incrementarTodosLosCodigos([],[]).
+incrementarTodosLosCodigos([(Cod,V)|LS],[(Cod2,V)|LSInc]) :- Cod2 is Cod+1, incrementarTodosLosCodigos(LS,LSInc).
+
+% Este predicado nos sirve para saber cuantas variables temporales hay en el programa
+%cantDeVariablesTemp(+P,+Xs,-CantTemp)
+cantDeVariablesTemp(P,Xs,CantTemp) :- cantDeVariables(P,0,CantTotal), length(Xs,CantEntrada), CantTemp is CantTotal-CantEntrada-1.
+% El 1 que restamos es por Y
+
+%cantDeVariables(+P,+CantActual,-Cant)
+cantDeVariables([],_,0).
+cantDeVariables([Ins|LS],CantActual,Cant) :- variableInstruccion(Ins,NumVar), cantDeVariables(LS,CantActual,Cant2), maximo(NumVar,Cant2,Cant).
 
 %Las descripciones instantáneas se representan con
 %tuplas cuyas primeras componentes corresponden al ı́ndice de la próxima instrucción a ejecutar y
@@ -122,17 +152,33 @@ maximo(N,M,M) :- N =< M.
 %avanzarIndice(+P, +S, +Ins, +I0, -I)
 avanzarIndice([],_,_,_,0).
 % Si la instruccion es distinta de goto
-%avanzarIndice(P,_,Ins,I0,I) :- codigoInstruccion(Ins,C), C<3, length(P,N), I2 is I0+1, maximo(I2,N,I).
-%avanzarIndice(P,S,)
+avanzarIndice(P,_,Ins,I0,I) :- codigoInstruccion(Ins,C), C<3, longitud(P,N), I2 is I0+1, maximo(I2,N,I).
+avanzarIndice(_,[],goto(_,_,_),I0,I) :- I is I0+1.
+avanzarIndice(_,[(V,0)|_],goto(_,V,E),I0,I) :- I is I0+1.
+avanzarIndice(P,[(V,M)|_],goto(_,V,E),I0,I) :- M\=0, primeraAparicionEtiqueta(P,E,I).
+avanzarIndice(P,[(X,_)|LS],goto(_,V,E),I0,I) :- X\=V, avanzarIndice(P,LS,goto(_,V,E),I0,I).
+
+%primeraAparicionEtiqueta(+P,+E,I)
+primeraAparicionEtiqueta(P,E,I) :- longitud(P,N), between(1,N,I), iEsimaInstruccion(P,I,Ins), etiquetaInstruccion(Ins,E2), E2=E, !.
+primeraAparicionEtiqueta(P,E,I) :- longitud(P,N), I is N+1.
 
 %avanzarEstado(+Ins, +S0, -S)
+% Estas dos instrucciones no modifican el estado
 avanzarEstado(nada(_,_),S,S).
 avanzarEstado(goto(_,_,_),S,S).
 %avanzarEstado(Ins,S0,S) :- codigoInstruccion(Ins,C), variableInstruccion(Ins,V), evaluar(S0,V,AcVal), , muchosAppends((V,AcVal),NT,S0,S), nuevaTupla(Val,C,R), .
+
+% Modificacion de estado para la suma
 avanzarEstado(suma(_,V),[(V,Va)|LS],[(V,NVa)|LS]) :- NVa is Va+1.
 avanzarEstado(suma(_,V),[(X,ValX)|LS],S) :- V \= X, avanzarEstado(suma(_,V),LS,S2), append([(X,ValX)],S2,S).
+% Si es la primera vez que aparece la variable
+avanzarEstado(suma(_,V),[],[(V,1)]).
+
+% Modificacion de estado para la suma
 avanzarEstado(resta(_,V),[(V,Va)|LS],[(V,NVa)|LS]) :- restaMinCero(Va,NVa).
 avanzarEstado(resta(_,V),[(X,ValX)|LS],S) :- V \= X, avanzarEstado(resta(_,V),LS,S2), append([(X,ValX)],S2,S).
+% Si es la primera vez que aparece la variable
+avanzarEstado(resta(_,V),[],[(V,0)]).
 
 %append(L1,[T],L2), append(L2,L3,S0), append(L1,[NuevaTupla],L4), append(L4,L3,S).
 
