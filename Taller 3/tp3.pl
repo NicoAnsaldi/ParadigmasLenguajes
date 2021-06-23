@@ -111,7 +111,11 @@ iEsimaInstruccion(E, Indice, Instruccion) :- is_list(E), iesimo(E, Indice, Instr
 % ejecutar el programa P con entradas Xs tras T pasos.
 % COMPLETAR
 snap(Xs,P,0,(1,S0)) :- entradaAEstado(P,Xs,S0), !.
-snap(Xs,P,T,(Ind,Est)) :- T>0, T2 is T-1, snap(Xs,P,T2,(Ind2,Est2)), iEsimaInstruccion(P,Ind2,Inst), avanzarIndice(P,Est2,Inst,Ind2,Ind), avanzarEstado(Inst,Est2,Est), !.
+snap(Xs,P,T,(Ind2,Est2)) :- T>0, T2 is T-1, snap(Xs,P,T2,(Ind2,Est2)), termino(P,Ind2), !.
+snap(Xs,P,T,(Ind,Est)) :- T>0, T2 is T-1, snap(Xs,P,T2,(Ind2,Est2)), not(termino(P,Ind2)), iEsimaInstruccion(P,Ind2,Inst), avanzarIndice(P,Est2,Inst,Ind2,Ind), avanzarEstado(Inst,Est2,Est), !.
+
+%termino(+P,+Ind).
+termino(P,Ind) :- longitud(P,Long), Ind > Long.
 
 %entradaAEstado(+P,+Xs,-S0).
 entradaAEstado(P,Xs,S0) :- entradaAEstadoAux(Xs,0,Est), incrementarCodigoVarsEntrada(P,Xs,Est,S0).
@@ -198,6 +202,7 @@ nuevoValor(Val,C,R) :- R is V + 3 + (-2*C).
 % Se dice que un programa terminó cuando la próxima instrucción a ejecutar es
 % 1 más que la longitud del programa.
 % COMPLETAR
+stp(Xs,P,T) :- longitud(P,Long), snap(Xs,P,T,Di), pi1(Di,Ind), Ind is Long+1.
 
 %% Pseudo-Halt
 
